@@ -10,6 +10,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 from torch.autograd import Variable
 
+
 class FocalLoss(nn.Module):
     r"""
         This criterion is a implemenation of Focal Loss, which is proposed in 
@@ -41,7 +42,6 @@ class FocalLoss(nn.Module):
 
     def forward(self, inputs, targets):
         N = inputs.size(0)
-        print(N)
         C = inputs.size(1)
         P = F.softmax(inputs)
 
@@ -49,8 +49,6 @@ class FocalLoss(nn.Module):
         class_mask = Variable(class_mask)
         ids = targets.view(-1, 1)
         class_mask.scatter_(1, ids.data, 1.)
-        #print(class_mask)
-        
 
         if inputs.is_cuda and not self.alpha.is_cuda:
             self.alpha = self.alpha.cuda()
@@ -59,14 +57,9 @@ class FocalLoss(nn.Module):
         probs = (P*class_mask).sum(1).view(-1,1)
 
         log_p = probs.log()
-        #print('probs size= {}'.format(probs.size()))
-        #print(probs)
 
         batch_loss = -alpha*(torch.pow((1-probs), self.gamma))*log_p 
-        #print('-----bacth_loss------')
-        #print(batch_loss)
 
-        
         if self.size_average:
             loss = batch_loss.mean()
         else:
@@ -74,7 +67,6 @@ class FocalLoss(nn.Module):
         return loss
 
         
-
 if __name__ == "__main__":
     alpha = torch.rand(21, 1)
     print(alpha)
@@ -99,5 +91,4 @@ if __name__ == "__main__":
     print('ce = {}, fl ={}'.format(ce_loss.data[0], fl_loss.data[0]))
     fl_loss.backward()
     ce_loss.backward()
-    #print(inputs_fl.grad.data)
     print(inputs_ce.grad.data)
